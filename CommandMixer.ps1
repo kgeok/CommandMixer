@@ -1,4 +1,4 @@
-﻿Add-Type -assembly System.Windows.Forms
+Add-Type -assembly System.Windows.Forms
 $main_form = New-Object System.Windows.Forms.Form
 $main_form.Text ='CommandMixer'
 [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
@@ -7,7 +7,7 @@ $main_form.Text ='CommandMixer'
 $FileBrowser = New-Object System.Windows.Forms.OpenFileDialog -Property @{ InitialDirectory = [Environment]::GetFolderPath('Desktop') }
 $File = New-Object System.Windows.Forms.ComboBox
 $File.Width = 300
-$zonesinput = 6
+$zonesinput = 4
 $posxcounter = 0
 $zones = $zonesinput * $zonesinput
 [xml]$ToastTemplate = @"
@@ -20,7 +20,7 @@ $zones = $zonesinput * $zonesinput
     </visual>
 </toast>
 "@
-$File.Items.Add("File");
+
 $PingData = [Windows.Data.Xml.Dom.XmlDocument]::New()
 $PingData.LoadXml($ToastTemplate.OuterXml)
 $File.Location  = New-Object System.Drawing.Point(5,10)
@@ -47,8 +47,12 @@ $main_form.Controls.Add($AboutButton)
 
 $OpenButton.Add_Click({
 
-
-$null = $FileBrowser.ShowDialog()
+$File.Items.Remove($FileBrowser.filename);
+$FileBrowser.ShowDialog()
+$File.Items.Add($FileBrowser.filename);
+$content = Get-Content $FileBrowser.filename 
+$content = ConvertFrom-Json –InputObject Get-Content $content
+Write-Host $content
 
 })
 
@@ -56,7 +60,6 @@ $AboutButton.Add_Click({
 
 $Notification = [Windows.UI.Notifications.ToastNotification]::New($PingData)
 [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\WindowsPowerShell\v1.0\powershell.exe").Show($Notification)
-
 
 
 })
@@ -82,7 +85,6 @@ If ($i % $zonesinput -ne 0){
 $posx = $posxcounter * 100
 $posxcounter = $posxcounter + 1
 
-
 }
 
 $j = New-Object System.Windows.Forms.Button
@@ -96,7 +98,6 @@ $j.Add_Click(
 
 
 })
-
 
 }
 
