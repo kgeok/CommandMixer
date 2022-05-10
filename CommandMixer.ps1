@@ -7,9 +7,9 @@ $main_form.Text ='CommandMixer'
 $FileBrowser = New-Object System.Windows.Forms.OpenFileDialog -Property @{ InitialDirectory = [Environment]::GetFolderPath('Desktop') }
 $File = New-Object System.Windows.Forms.ComboBox
 $File.Width = 300
-$zonesinput = 4
+
 $posxcounter = 0
-$zones = $zonesinput * $zonesinput
+
 [xml]$ToastTemplate = @"
 <toast>
     <visual>
@@ -32,14 +32,9 @@ $OpenButton.Size = New-Object System.Drawing.Size(100,23)
 $OpenButton.Text = "Open"
 $main_form.Controls.Add($OpenButton)
 
-$GenButton = New-Object System.Windows.Forms.Button
-$GenButton.Location = New-Object System.Drawing.Size(105,50)
-$GenButton.Size = New-Object System.Drawing.Size(100,23)
-$GenButton.Text = "Build"
-$main_form.Controls.Add($GenButton)
 
 $AboutButton = New-Object System.Windows.Forms.Button
-$AboutButton.Location = New-Object System.Drawing.Size(205,50)
+$AboutButton.Location = New-Object System.Drawing.Size(105,50)
 $AboutButton.Size = New-Object System.Drawing.Size(100,23)
 $AboutButton.Text = "About"
 $main_form.Controls.Add($AboutButton)
@@ -50,9 +45,59 @@ $OpenButton.Add_Click({
 $File.Items.Remove($FileBrowser.filename);
 $FileBrowser.ShowDialog()
 $File.Items.Add($FileBrowser.filename);
-$content = Get-Content $FileBrowser.filename 
-$content = ConvertFrom-Json –InputObject Get-Content $content
-Write-Host $content
+
+$content = (Get-Content $FileBrowser.filename | Out-String | ConvertFrom-Json)
+
+Write-Host $content.cmds
+
+$zonesinput = 3
+
+$zones = $zonesinput * $zonesinput
+
+
+for (($i = 0); $i -lt ($zones); $i++){
+
+
+If ($i % $zonesinput -eq 0){
+
+$posx = 0
+$posxcounter = 1
+$indexcounter = 0
+$posy = $posy + 100
+
+}
+
+If ($i % $zonesinput -ne 0){
+
+$posx = $posxcounter * 100
+$posxcounter = $posxcounter + 1
+
+}
+
+$j = New-Object System.Windows.Forms.Button
+$j.Location = New-Object System.Drawing.Size(($posx + 5),$posy)
+$j.Size = New-Object System.Drawing.Size(100,100)
+$j.Text = $content.cmds.name[$indexcounter]
+
+$command = $content.cmds.command[$indexcounter]
+
+$j.Add_Click(
+{
+
+Invoke-Command($command)
+
+})
+
+$main_form.Controls.Add($j)
+
+
+$indexcounter = $indexcounter + 1
+
+}
+
+
+
+
 
 })
 
@@ -69,37 +114,6 @@ $GenButton.Add_Click(
 {
 
 
-for (($i = 0); $i -lt ($zones); $i++){
-
-
-If ($i % $zonesinput -eq 0){
-
-$posx = 0
-$posxcounter = 1
-$posy = $posy + 100
-
-}
-
-If ($i % $zonesinput -ne 0){
-
-$posx = $posxcounter * 100
-$posxcounter = $posxcounter + 1
-
-}
-
-$j = New-Object System.Windows.Forms.Button
-$j.Location = New-Object System.Drawing.Size(($posx + 5),$posy)
-$j.Size = New-Object System.Drawing.Size(100,100)
-$j.Text = "X"
-$main_form.Controls.Add($j)
-
-$j.Add_Click(
-{
-
-
-})
-
-}
 
 })
 
