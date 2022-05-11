@@ -1,4 +1,5 @@
 Add-Type -assembly System.Windows.Forms
+Add-Type -AssemblyName PresentationCore,PresentationFramework
 $main_form = New-Object System.Windows.Forms.Form
 $main_form.Text ='CommandMixer'
 [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
@@ -46,6 +47,14 @@ $File.Items.Remove($FileBrowser.filename);
 $FileBrowser.ShowDialog()
 $File.Items.Add($FileBrowser.filename);
 
+If ((Split-Path -Path $FileBrowser.filename -Leaf).Split(".")[1] -ne "json"){
+
+[System.Windows.MessageBox]::Show('File Type is not valid JSON', "Bad File", 1, "Stop")
+
+}
+
+If ((Split-Path -Path $FileBrowser.filename -Leaf).Split(".")[1] -eq "json"){
+
 $content = (Get-Content $FileBrowser.filename | Out-String | ConvertFrom-Json)
 
 Write-Host $content.cmds
@@ -84,7 +93,9 @@ $command = $content.cmds.command[$indexcounter]
 $j.Add_Click(
 {
 
-Invoke-Command($command)
+Invoke-Command -ScriptBlock {$command}
+
+
 
 })
 
@@ -96,7 +107,7 @@ $indexcounter = $indexcounter + 1
 }
 
 
-
+}
 
 
 })
@@ -105,14 +116,6 @@ $AboutButton.Add_Click({
 
 $Notification = [Windows.UI.Notifications.ToastNotification]::New($PingData)
 [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\WindowsPowerShell\v1.0\powershell.exe").Show($Notification)
-
-
-})
-
-
-$GenButton.Add_Click(
-{
-
 
 
 })
